@@ -1,11 +1,13 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PrismaService } from './prisma.service';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
-import { Middleware } from './middleware';
+import { ProfileModule } from './profile/profile.module';
+// import { FirebaseService } from './firebase.service';
+import { AddressModule } from './address/address.module';
+import { RegionModule } from './region/region.module';
 
 @Module({
   imports: [
@@ -14,12 +16,15 @@ import { Middleware } from './middleware';
     }),
     UserModule,
     AuthModule,
+    ProfileModule,
+    AddressModule,
+    RegionModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService],
+  providers: [AppService],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(Middleware).forRoutes('user');
-  }
+export class AppModule {
+  // configure(consumer: MiddlewareConsumer) {
+  //   consumer.apply(Middleware).forRoutes('user');
+  // }
 }

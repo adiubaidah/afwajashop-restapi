@@ -5,6 +5,7 @@ import {
   Res,
   Req,
   ForbiddenException,
+  Delete,
 } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { CreateUserDto } from 'src/user/user.dto';
@@ -12,6 +13,7 @@ import { LoginDto } from './auth.dto';
 import { AuthService } from './auth.service';
 import { Response, Request } from 'express';
 import { extractFromCookie } from 'src/helper';
+import { JWT_EXPIRE } from 'src/constant';
 
 @Controller('auth')
 export class AuthController {
@@ -36,6 +38,8 @@ export class AuthController {
       path: '/',
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none',
+      maxAge: JWT_EXPIRE,
     });
     return {
       statusCode: 200,
@@ -53,5 +57,21 @@ export class AuthController {
       }
     }
     return true;
+  }
+
+  @Delete('logout')
+  async logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('access_token', {
+      domain: process.env.DOMAIN,
+      path: '/',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none',
+    });
+
+    return {
+      statusCode: 200,
+      message: 'Logout berhasil',
+    };
   }
 }

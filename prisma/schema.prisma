@@ -16,13 +16,17 @@ enum Role {
 }
 
 model User {
-  id       String    @id @default(uuid())
-  email    String    @unique
+  id       String     @id @default(uuid())
+  email    String     @unique
   password String
-  role     Role      @default(USER)
-  isActive Boolean   @default(true) @map("is_active")
+  role     Role       @default(USER)
+  isActive Boolean    @default(true) @map("is_active")
   profile  Profile?
   address  Address[]
+  Cart     Cart[]
+  Favorite Favorite[]
+
+  @@map(name: "users")
 }
 
 enum Gender {
@@ -32,17 +36,120 @@ enum Gender {
 
 model Profile {
   id     Int    @id @default(autoincrement())
-  userId String @unique
+  userId String @unique @map("user_id")
   user   User   @relation(fields: [userId], references: [id])
-  image  String
-  phone  String
-  age    String
+  name   String @db.VarChar(100)
+  image  String @db.VarChar(150)
+  phone  String @db.VarChar(13)
+  age    Int
   gender Gender
+
+  @@map(name: "profiles")
+}
+
+model Province {
+  id      Int       @id @default(autoincrement())
+  name    String    @db.VarChar(191)
+  City    City[]
+  Address Address[]
+
+  @@map(name: "provinces")
+}
+
+model City {
+  id          Int           @id @default(autoincrement())
+  name        String        @db.VarChar(191)
+  postalCode  String        @map("postal_code")
+  provinceId  Int           @map("province_id")
+  province    Province      @relation(fields: [provinceId], references: [id])
+  SubDistrict SubDistrict[]
+  Address     Address[]
+
+  @@map(name: "cities")
+}
+
+model SubDistrict {
+  id      Int       @id @default(autoincrement())
+  name    String    @db.VarChar(191)
+  cityId  Int       @map("city_id")
+  city    City      @relation(fields: [cityId], references: [id])
+  Address Address[]
+
+  @@map(name: "sub_districts")
 }
 
 model Address {
-  id      Int    @id @default(autoincrement())
-  userId  String
-  User    User   @relation(fields: [userId], references: [id])
-  address String
+  id            Int         @id @default(autoincrement())
+  userId        String      @map("user_id")
+  User          User        @relation(fields: [userId], references: [id])
+  address       String
+  provinceId    Int         @map("province_id")
+  province      Province    @relation(fields: [provinceId], references: [id])
+  cityId        Int         @map("city_id")
+  city          City        @relation(fields: [cityId], references: [id])
+  subDistrictId Int         @map("subdistrict_id")
+  subdistrict   SubDistrict @relation(fields: [subDistrictId], references: [id])
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  @@map(name: "address")
+}
+
+model Product {
+  id              String            @id @default(cuid())
+  name            String            @db.VarChar(50)
+  slug            String            @unique @db.VarChar(15)
+  isActive        Boolean           @map("is_active")
+  isFeatured      Boolean           @map("is_featured")
+  isNew           Boolean           @map("is_new")
+  description     String
+  excerpt         String
+  ProductImages   ProductImages[]
+  ProductVariants ProductVariants[]
+  Cart            Cart[]
+  Favorite        Favorite[]
+
+  @@map(name: "products")
+}
+
+model ProductVariants {
+  id        Int     @id @default(autoincrement())
+  name      String? @db.VarChar(25)
+  size      String? @db.VarChar(10)
+  stock     Int
+  price     Int
+  oldPrice  Int
+  productId String
+  Product   Product @relation(fields: [productId], references: [id])
+
+  @@map(name: "product_variants")
+}
+
+model ProductImages {
+  id        Int     @id @default(autoincrement())
+  image     String  @db.VarChar(200)
+  productId String
+  Product   Product @relation(fields: [productId], references: [id])
+
+  @@map(name: "product_images")
+}
+
+model Cart {
+  id        String  @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+
+  @@map(name: "carts")
+}
+
+model Favorite {
+  id        String  @id @default(cuid())
+  userId    String  @map("user_id")
+  user      User    @relation(fields: [userId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map(name: "favorites")
 }
