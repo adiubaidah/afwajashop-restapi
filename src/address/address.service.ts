@@ -41,38 +41,4 @@ export class AddressService {
       },
     });
   }
-  async isRegionValid(address: AddressDTO) {
-    //cek apakah provinsi dan city benar
-
-    const existingProvince =
-      await this.prismaService.province.findUniqueOrThrow({
-        where: {
-          id: address.provinceId,
-        },
-      });
-    // return !!existingProvince;
-
-    const existingCity = await this.prismaService.city.findFirstOrThrow({
-      where: {
-        id: address.cityId,
-      },
-    });
-
-    const existingSubdistric =
-      await this.prismaService.subDistrict.findFirstOrThrow({
-        where: {
-          id: address.subDistrictId,
-        },
-      });
-
-    const checkValid =
-      existingProvince.id === existingCity.provinceId &&
-      existingCity.id === existingSubdistric.cityId;
-
-    if (checkValid) {
-      return true;
-    } else {
-      throw new Error();
-    }
-  }
 }

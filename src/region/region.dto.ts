@@ -9,6 +9,7 @@ export class ProvinceQuery {
 }
 
 export class CityQuery {
+  @IsOptional()
   @IsNumber({}, { message: 'Query tidak valid' })
   @Transform(({ value }) => parseInt(value), { toClassOnly: true })
   provinceId?: number;
@@ -20,6 +21,7 @@ export class CityQuery {
 }
 
 export class SubdistrictQuery {
+  @IsOptional()
   @IsNumber({}, { message: 'Query tidak valid' })
   @Transform(({ value }) => parseInt(value), { toClassOnly: true })
   cityId?: number;

@@ -52,6 +52,7 @@ model Province {
   name    String    @db.VarChar(191)
   City    City[]
   Address Address[]
+  Product Product[]
 
   @@map(name: "provinces")
 }
@@ -64,6 +65,7 @@ model City {
   province    Province      @relation(fields: [provinceId], references: [id])
   SubDistrict SubDistrict[]
   Address     Address[]
+  Product     Product[]
 
   @@map(name: "cities")
 }
@@ -74,6 +76,7 @@ model SubDistrict {
   cityId  Int       @map("city_id")
   city    City      @relation(fields: [cityId], references: [id])
   Address Address[]
+  Product Product[]
 
   @@map(name: "sub_districts")
 }
@@ -103,6 +106,12 @@ model Product {
   isNew           Boolean           @map("is_new")
   description     String
   excerpt         String
+  provinceId      Int               @map("province_id")
+  province        Province          @relation(fields: [provinceId], references: [id])
+  cityId          Int               @map("city_id")
+  city            City              @relation(fields: [cityId], references: [id])
+  subDistrictId   Int               @map("subdistrict_id")
+  subdistrict     SubDistrict       @relation(fields: [subDistrictId], references: [id])
   ProductImages   ProductImages[]
   ProductVariants ProductVariants[]
   Cart            Cart[]
@@ -119,7 +128,7 @@ model ProductVariants {
   price     Int
   oldPrice  Int
   productId String
-  Product   Product @relation(fields: [productId], references: [id])
+  Product   Product @relation(fields: [productId], references: [id], onDelete: Cascade) 
 
   @@map(name: "product_variants")
 }
@@ -128,7 +137,7 @@ model ProductImages {
   id        Int     @id @default(autoincrement())
   image     String  @db.VarChar(200)
   productId String
-  Product   Product @relation(fields: [productId], references: [id])
+  Product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@map(name: "product_images")
 }
@@ -138,7 +147,7 @@ model Cart {
   userId    String
   user      User    @relation(fields: [userId], references: [id])
   productId String
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   quantity  Int
 
   @@map(name: "carts")
@@ -149,7 +158,7 @@ model Favorite {
   userId    String  @map("user_id")
   user      User    @relation(fields: [userId], references: [id])
   productId String
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@map(name: "favorites")
 }

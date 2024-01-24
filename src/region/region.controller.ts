@@ -4,6 +4,7 @@ import {
   Query,
   ValidationPipe,
   UsePipes,
+  NotFoundException,
 } from '@nestjs/common';
 import { RegionService } from './region.service';
 import { CityQuery, ProvinceQuery, SubdistrictQuery } from './region.dto';
@@ -26,10 +27,14 @@ export class RegionController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async cities(@Query() query: CityQuery) {
     const { provinceId, id } = query;
-    if (id) {
-      return this.regionService.findCity(id);
-    } else if (provinceId) {
-      return this.regionService.getCities(provinceId);
+    if (query) {
+      if (id) {
+        return this.regionService.findCity(id);
+      } else if (provinceId) {
+        return this.regionService.getCities(provinceId);
+      }
+    } else {
+      throw new NotFoundException();
     }
   }
 
@@ -37,10 +42,13 @@ export class RegionController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async subdistricts(@Query() query: SubdistrictQuery) {
     const { cityId, id } = query;
-    if (id) {
-      return this.regionService.findSubdistrict(id);
-    } else if (cityId) {
+    if (query) {
+      if (id) {
+        return this.regionService.findSubdistrict(id);
+      }
       return this.regionService.getSubdistricts(cityId);
+    } else {
+      throw new NotFoundException();
     }
   }
 }

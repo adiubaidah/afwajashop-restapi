@@ -43,6 +43,12 @@ export class FirebaseService implements OnModuleInit {
     return (await uploadBytes(imageRef, imageBuffer)).ref.fullPath;
   }
 
+  async getDownloadUrl(filePath: string) {
+    const fileRef = ref(this.getFirebaseStorage(), filePath);
+    const downloadPath = getDownloadURL(fileRef);
+    return downloadPath;
+  }
+
   async checkIfFileExists(filePath: string): Promise<boolean> {
     const storageRef = ref(this.getFirebaseStorage(), filePath);
 

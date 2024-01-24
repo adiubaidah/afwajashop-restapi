@@ -15,9 +15,10 @@ import { ProfileDTO } from './profile.dto';
 import { CustomUploadFileTypeValidator } from 'src/lib/file.validator';
 import { JwtGuard } from 'src/auth/jwt.guard';
 import { ProfileGuard } from './profile.guard';
-
-const MAX_PROFILE_PICTURE_SIZE_IN_BYTES = 2 * 1024 * 1024;
-const VALID_UPLOADS_MIME_TYPES = ['image/jpeg', 'image/png'];
+import {
+  MAX_PROFILE_PICTURE_SIZE_IN_BYTES,
+  VALID_UPLOADS_MIME_TYPES,
+} from 'src/constant';
 
 @Controller('profile')
 export class ProfileController {

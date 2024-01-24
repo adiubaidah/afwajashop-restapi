@@ -8,6 +8,9 @@ import { ProfileModule } from './profile/profile.module';
 // import { FirebaseService } from './firebase.service';
 import { AddressModule } from './address/address.module';
 import { RegionModule } from './region/region.module';
+import { ProductModule } from './product/product.module';
+import { ProductImagesModule } from './product-images/product-images.module';
+import { ProductVariantsModule } from './product-variants/product-variants.module';
 
 @Module({
   imports: [
@@ -19,6 +22,9 @@ import { RegionModule } from './region/region.module';
     ProfileModule,
     AddressModule,
     RegionModule,
+    ProductModule,
+    ProductImagesModule,
+    ProductVariantsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

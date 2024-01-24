@@ -10,6 +10,7 @@ import { Request } from 'express';
 import { AddressService } from './address.service';
 import { JwtGuard } from 'src/auth/jwt.guard';
 import { AddressDTO } from './address.dto';
+import { RegionService } from 'src/region/region.service';
 
 interface RequestType extends Request {
   user: {
@@ -23,21 +24,26 @@ interface RequestType extends Request {
 
 @Controller('address')
 export class AddressController {
-  constructor(private addressService: AddressService) {}
+  constructor(
+    private addressService: AddressService,
+    private regionService: RegionService,
+  ) {}
 
   @Put()
   @UseGuards(JwtGuard)
-  async upsert(@Req() request: RequestType, @Body() address: AddressDTO) {
+  async upsert(@Req() request: RequestType, @Body() data: AddressDTO) {
     const {
-      user: { id },
+      user: { id: userId },
     } = request;
     try {
-      await this.addressService.isRegionValid(address);
+      const { id, ...region } = data;
+      // console.log(data)
+      await this.regionService.isRegionValid(region);
 
-      if (address.id) {
-        return await this.addressService.update(address);
+      if (id) {
+        return await this.addressService.update(data);
       }
-      return await this.addressService.create(id, address);
+      return await this.addressService.create(userId, data);
     } catch (error) {
       throw new BadRequestException();
     }
