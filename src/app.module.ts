@@ -11,7 +11,9 @@ import { RegionModule } from './region/region.module';
 import { ProductModule } from './product/product.module';
 import { ProductImagesModule } from './product-images/product-images.module';
 import { ProductVariantsModule } from './product-variants/product-variants.module';
-
+import { CategoryModule } from './category/category.module';
+import { CartModule } from './cart/cart.module';
+import { FavoriteModule } from './favorite/favorite.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -25,6 +27,9 @@ import { ProductVariantsModule } from './product-variants/product-variants.modul
     ProductModule,
     ProductImagesModule,
     ProductVariantsModule,
+    CategoryModule,
+    CartModule,
+    FavoriteModule,
   ],
   controllers: [AppController],
   providers: [AppService],

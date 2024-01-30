@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { hash } from 'bcrypt';
 import { PrismaService } from '../prisma.service';
 import { CreateUserDto } from './user.dto';
@@ -8,17 +12,21 @@ export class UserService {
   constructor(private prisma: PrismaService) {}
 
   async create(dto: CreateUserDto) {
+    const { confirmPassword, ...restDto } = dto;
     const existingUser = await this.prisma.user.findUnique({
       where: {
-        email: dto.email,
+        email: restDto.email,
       },
     });
     // console.log(existingUser)
-    if (existingUser) throw new ConflictException('Email already taken');
+    if (existingUser) throw new ConflictException('Email telah terpakai');
+
+    if (restDto.password !== confirmPassword)
+      throw new BadRequestException('Konfirmasi password tidak cocok');
 
     const newUser = await this.prisma.user.create({
       data: {
-        ...dto,
+        ...restDto,
         password: await hash(dto.password, 10),
       },
     });

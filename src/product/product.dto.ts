@@ -21,6 +21,9 @@ export class ProductDTO {
   @IsString({ message: 'Harus ada excerpt' })
   excerpt: string;
 
+  @IsNumber({}, { message: 'Category harus ada' })
+  categoryId: number;
+
   @IsNumber({}, { message: 'Provinsi harus ada' })
   provinceId: number;
 

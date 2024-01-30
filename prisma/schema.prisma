@@ -23,8 +23,9 @@ model User {
   isActive Boolean    @default(true) @map("is_active")
   profile  Profile?
   address  Address[]
-  Cart     Cart[]
-  Favorite Favorite[]
+  cart     Cart[]
+  favorite Favorite[]
+  order    Order[]
 
   @@map(name: "users")
 }
@@ -36,7 +37,7 @@ enum Gender {
 
 model Profile {
   id     Int    @id @default(autoincrement())
-  userId String @unique @map("user_id")
+  userId String @unique @map("user_id") @db.Char(36)
   user   User   @relation(fields: [userId], references: [id])
   name   String @db.VarChar(100)
   image  String @db.VarChar(150)
@@ -50,9 +51,9 @@ model Profile {
 model Province {
   id      Int       @id @default(autoincrement())
   name    String    @db.VarChar(191)
-  City    City[]
-  Address Address[]
-  Product Product[]
+  city    City[]
+  address Address[]
+  product Product[]
 
   @@map(name: "provinces")
 }
@@ -63,9 +64,9 @@ model City {
   postalCode  String        @map("postal_code")
   provinceId  Int           @map("province_id")
   province    Province      @relation(fields: [provinceId], references: [id])
-  SubDistrict SubDistrict[]
-  Address     Address[]
-  Product     Product[]
+  subDistrict SubDistrict[]
+  address     Address[]
+  product     Product[]
 
   @@map(name: "cities")
 }
@@ -75,16 +76,16 @@ model SubDistrict {
   name    String    @db.VarChar(191)
   cityId  Int       @map("city_id")
   city    City      @relation(fields: [cityId], references: [id])
-  Address Address[]
-  Product Product[]
+  address Address[]
+  product Product[]
 
   @@map(name: "sub_districts")
 }
 
 model Address {
   id            Int         @id @default(autoincrement())
-  userId        String      @map("user_id")
-  User          User        @relation(fields: [userId], references: [id])
+  userId        String      @map("user_id") @db.Char(36)
+  user          User        @relation(fields: [userId], references: [id])
   address       String
   provinceId    Int         @map("province_id")
   province      Province    @relation(fields: [provinceId], references: [id])
@@ -97,6 +98,23 @@ model Address {
   @@map(name: "address")
 }
 
+model Banner {
+  id       Int     @id @default(autoincrement())
+  image    String  @db.VarChar(50)
+  isActive Boolean @map("is_active")
+  link     String  @db.VarChar(255)
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @db.VarChar(50)
+  isActive Boolean   @map("is_active")
+  image    String    @db.VarChar(50)
+  product  Product[]
+
+  @@map(name: "categories")
+}
+
 model Product {
   id              String            @id @default(cuid())
   name            String            @db.VarChar(50)
@@ -106,16 +124,18 @@ model Product {
   isNew           Boolean           @map("is_new")
   description     String
   excerpt         String
+  categoryId      Int               @map("category_id")
+  category        Category          @relation(fields: [categoryId], references: [id])
   provinceId      Int               @map("province_id")
   province        Province          @relation(fields: [provinceId], references: [id])
   cityId          Int               @map("city_id")
   city            City              @relation(fields: [cityId], references: [id])
   subDistrictId   Int               @map("subdistrict_id")
   subdistrict     SubDistrict       @relation(fields: [subDistrictId], references: [id])
-  ProductImages   ProductImages[]
-  ProductVariants ProductVariants[]
-  Cart            Cart[]
-  Favorite        Favorite[]
+  productImages   ProductImages[]
+  productVariants ProductVariants[]
+  cart            Cart[]
+  favorite        Favorite[]
 
   @@map(name: "products")
 }
@@ -127,8 +147,9 @@ model ProductVariants {
   stock     Int
   price     Int
   oldPrice  Int
-  productId String
-  Product   Product @relation(fields: [productId], references: [id], onDelete: Cascade) 
+  productId String  @db.VarChar(30) @map("product_id")
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cart      Cart[]
 
   @@map(name: "product_variants")
 }
@@ -136,29 +157,50 @@ model ProductVariants {
 model ProductImages {
   id        Int     @id @default(autoincrement())
   image     String  @db.VarChar(200)
-  productId String
-  Product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String  @db.VarChar(30) @map("product_id")
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@map(name: "product_images")
 }
 
 model Cart {
-  id        String  @id @default(cuid())
-  userId    String
-  user      User    @relation(fields: [userId], references: [id])
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  quantity  Int
+  id               String          @id @default(cuid())
+  userId           String          @map("user_id") @db.Char(36)
+  user             User            @relation(fields: [userId], references: [id])
+  productId        String          @map("product_id") @db.VarChar(30)
+  product          Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productVariantId Int             @map("product_variant_id")
+  productVariant   ProductVariants @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
+  quantity         Int
 
   @@map(name: "carts")
 }
 
 model Favorite {
   id        String  @id @default(cuid())
-  userId    String  @map("user_id")
+  userId    String  @map("user_id") @db.Char(36)
   user      User    @relation(fields: [userId], references: [id])
-  productId String
+  productId String  @db.VarChar(30) @map("product_id")
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@map(name: "favorites")
+}
+
+model Order {
+  id           String      @id @default(cuid())
+  amount       Int
+  gross_amount Int
+  resi         String      @db.VarChar(50)
+  status       OrderStatus
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @default(now()) @updatedAt @map("updated_at")
+  userId       String      @map("user_id") @db.Char(36)
+  user         User        @relation(fields: [userId], references: [id])
+}
+
+enum OrderStatus {
+  cancel //dibatalkan
+  pending //
+  expire
+  success
 }

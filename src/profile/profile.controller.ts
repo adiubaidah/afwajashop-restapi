@@ -2,33 +2,34 @@ import {
   Controller,
   Put,
   Body,
-  Param,
   UseInterceptors,
   UploadedFile,
   ParseFilePipeBuilder,
   HttpStatus,
   UseGuards,
+  Req,
+  BadRequestException,
 } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ProfileDTO } from './profile.dto';
 import { CustomUploadFileTypeValidator } from 'src/lib/file.validator';
 import { JwtGuard } from 'src/auth/jwt.guard';
-import { ProfileGuard } from './profile.guard';
 import {
   MAX_PROFILE_PICTURE_SIZE_IN_BYTES,
   VALID_UPLOADS_MIME_TYPES,
 } from 'src/constant';
+import { Request } from 'express';
 
 @Controller('profile')
 export class ProfileController {
   constructor(private profileService: ProfileService) {}
 
-  @Put(':userId')
-  @UseGuards(JwtGuard, ProfileGuard)
+  @Put()
+  @UseGuards(JwtGuard)
   @UseInterceptors(FileInterceptor('image'))
   async upsert(
-    @Param() { userId }: { userId: string },
+    @Req() request: Request,
     @Body() newProfile: ProfileDTO,
     @UploadedFile(
       new ParseFilePipeBuilder()
@@ -42,6 +43,14 @@ export class ProfileController {
     )
     image: Express.Multer.File,
   ) {
-    return this.profileService.upsert(userId, newProfile, image);
+    try {
+      return await this.profileService.upsert(
+        request['user'].id,
+        newProfile,
+        image,
+      );
+    } catch (error) {
+      throw new BadRequestException();
+    }
   }
 }

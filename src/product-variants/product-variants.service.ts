@@ -6,22 +6,34 @@ import { ProductVariantsDTO } from './product-variants.dto';
 export class ProductVariantsService {
   constructor(private prismaService: PrismaService) {}
 
-  async addVariant(data: ProductVariantsDTO) {
+  async addVariant(variant: ProductVariantsDTO) {
+    const { productId, ...data } = variant;
     const result = await this.prismaService.productVariants.create({
       data: {
         ...data,
+        product: {
+          connect: {
+            id: productId,
+          },
+        },
       },
     });
     return result;
   }
 
-  async editVariant(id: number, data: ProductVariantsDTO) {
+  async editVariant(id: number, variant: ProductVariantsDTO) {
+    const { productId, ...data } = variant;
     const result = await this.prismaService.productVariants.update({
       where: {
         id,
       },
       data: {
         ...data,
+        product: {
+          connect: {
+            id: productId,
+          },
+        },
       },
     });
     return result;

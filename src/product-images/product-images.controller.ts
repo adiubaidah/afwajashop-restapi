@@ -28,14 +28,10 @@ import {
   VALID_UPLOADS_MIME_TYPES,
 } from 'src/constant';
 import { ProductImagesDTO, GetImageQuery } from './product-images.dto';
-import { ProductService } from 'src/product/product.service';
 
 @Controller('product-images')
 export class ProductImagesController {
-  constructor(
-    private productImagesService: ProductImagesService,
-    private productService: ProductService,
-  ) {}
+  constructor(private productImagesService: ProductImagesService) {}
 
   @Get()
   async get(@Query() { id, productId }: GetImageQuery) {
@@ -70,10 +66,9 @@ export class ProductImagesController {
   ) {
     // console.log(image);
     try {
-      await this.productService.findProductById(data.productId); /// dicek ada atau tidak
       return await this.productImagesService.createImage(data, image);
     } catch (error) {
-      throw new BadRequestException();
+      throw new BadRequestException(error);
     }
     // return await this.productImagesService.createImage(data, image);
   }
@@ -82,6 +77,10 @@ export class ProductImagesController {
   @Role(RoleEnum.ADMIN)
   @UseGuards(JwtGuard, RoleGuard)
   async deleteImage(@Param() { imageId }: { imageId: number }) {
-    return await this.productImagesService.deleteImage(imageId);
+    try {
+      return await this.productImagesService.deleteImage(imageId);
+    } catch (error) {
+      throw new NotFoundException(error);
+    }
   }
 }

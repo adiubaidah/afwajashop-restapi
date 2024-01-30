@@ -54,46 +54,4 @@ export class RegionService {
     });
     return result;
   }
-  async isRegionValid({
-    provinceId,
-    cityId,
-    subDistrictId,
-  }: {
-    provinceId: number;
-    cityId: number;
-    subDistrictId: number;
-  }) {
-    //cek apakah provinsi dan city benar
-
-    const existingProvince =
-      await this.prismaService.province.findUniqueOrThrow({
-        where: {
-          id: provinceId,
-        },
-      });
-    // return !!existingProvince;
-
-    const existingCity = await this.prismaService.city.findFirstOrThrow({
-      where: {
-        id: cityId,
-      },
-    });
-
-    const existingSubdistric =
-      await this.prismaService.subDistrict.findFirstOrThrow({
-        where: {
-          id: subDistrictId,
-        },
-      });
-
-    const checkValid =
-      existingProvince.id === existingCity.provinceId &&
-      existingCity.id === existingSubdistric.cityId;
-
-    if (checkValid) {
-      return true;
-    } else {
-      throw new Error();
-    }
-  }
 }

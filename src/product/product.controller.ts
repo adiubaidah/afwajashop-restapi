@@ -9,6 +9,7 @@ import {
   Query,
   Param,
   Delete,
+  NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { ProductService } from './product.service';
@@ -17,14 +18,10 @@ import { Role } from 'src/role/role.decorator';
 import { Role as RoleEnum } from 'src/constant';
 import { RoleGuard } from 'src/role/role.guard';
 import { JwtGuard } from 'src/auth/jwt.guard';
-import { RegionService } from 'src/region/region.service';
 
 @Controller('product')
 export class ProductController {
-  constructor(
-    private productService: ProductService,
-    private regionService: RegionService,
-  ) {}
+  constructor(private productService: ProductService) {}
 
   @Get()
   async products(
@@ -46,6 +43,24 @@ export class ProductController {
       perPage,
       orderBy,
       where: { name: { contains: search, mode: 'insensitive' } },
+      include: {
+        productImages: {
+          select: {
+            image: true,
+          },
+          take: 1,
+        },
+        productVariants: {
+          select: {
+            oldPrice: true,
+            price: true,
+          },
+          orderBy: {
+            price: 'asc',
+          },
+          take: 1,
+        },
+      },
     });
   }
 
@@ -60,16 +75,9 @@ export class ProductController {
   @UseGuards(JwtGuard, RoleGuard)
   async addProduct(@Body() data: ProductDTO) {
     try {
-      const { cityId, provinceId, subDistrictId } = data;
-      await this.regionService.isRegionValid({
-        cityId,
-        provinceId,
-        subDistrictId,
-      });
-      // console.log(data);
       return await this.productService.addProduct(data);
     } catch (error) {
-      throw new BadRequestException();
+      throw new BadRequestException(error);
     }
   }
 
@@ -81,12 +89,6 @@ export class ProductController {
     @Body() data: ProductDTO,
   ) {
     try {
-      const { cityId, provinceId, subDistrictId } = data;
-      await this.regionService.isRegionValid({
-        cityId,
-        provinceId,
-        subDistrictId,
-      });
       return await this.productService.updateProduct(productId, data);
     } catch (error) {
       throw new BadRequestException();
@@ -97,6 +99,10 @@ export class ProductController {
   @Role(RoleEnum.ADMIN)
   @UseGuards(JwtGuard, RoleGuard)
   async deleteProduct(@Param() { productId }: { productId: string }) {
-    return await this.productService.deleteProduct(productId);
+    try {
+      return await this.productService.deleteProduct(productId);
+    } catch (error) {
+      throw new NotFoundException(error);
+    }
   }
 }

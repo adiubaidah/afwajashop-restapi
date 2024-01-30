@@ -10,7 +10,6 @@ import { Request } from 'express';
 import { AddressService } from './address.service';
 import { JwtGuard } from 'src/auth/jwt.guard';
 import { AddressDTO } from './address.dto';
-import { RegionService } from 'src/region/region.service';
 
 interface RequestType extends Request {
   user: {
@@ -24,10 +23,7 @@ interface RequestType extends Request {
 
 @Controller('address')
 export class AddressController {
-  constructor(
-    private addressService: AddressService,
-    private regionService: RegionService,
-  ) {}
+  constructor(private addressService: AddressService) {}
 
   @Put()
   @UseGuards(JwtGuard)
@@ -36,11 +32,7 @@ export class AddressController {
       user: { id: userId },
     } = request;
     try {
-      const { id, ...region } = data;
-      // console.log(data)
-      await this.regionService.isRegionValid(region);
-
-      if (id) {
+      if (data.id) {
         return await this.addressService.update(data);
       }
       return await this.addressService.create(userId, data);

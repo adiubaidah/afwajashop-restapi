@@ -9,6 +9,7 @@ import {
   Param,
   ParseIntPipe,
   NotAcceptableException,
+  NotFoundException,
 } from '@nestjs/common';
 import { ProductVariantsService } from './product-variants.service';
 import { JwtGuard } from 'src/auth/jwt.guard';
@@ -16,21 +17,16 @@ import { Role } from 'src/role/role.decorator';
 import { Role as RoleEnum } from 'src/constant';
 import { RoleGuard } from 'src/role/role.guard';
 import { ProductVariantsDTO } from './product-variants.dto';
-import { ProductService } from 'src/product/product.service';
 
 @Role(RoleEnum.ADMIN)
 @UseGuards(JwtGuard, RoleGuard)
 @Controller('product-variants')
 export class ProductVariantsController {
-  constructor(
-    private productVariantsService: ProductVariantsService,
-    private productService: ProductService,
-  ) {}
+  constructor(private productVariantsService: ProductVariantsService) {}
 
   @Post()
   async addVariant(@Body() data: ProductVariantsDTO) {
     try {
-      await this.productService.findProductById(data.productId);
       const result = await this.productVariantsService.addVariant(data);
       return result;
     } catch (error) {
@@ -51,7 +47,6 @@ export class ProductVariantsController {
     @Body() data: ProductVariantsDTO,
   ) {
     try {
-      await this.productService.findProductById(data.productId);
       const result = await this.productVariantsService.editVariant(
         variantId,
         data,
@@ -73,7 +68,10 @@ export class ProductVariantsController {
     )
     variantId: number,
   ) {
-    // console.log(variantId);
-    return await this.productVariantsService.deleteVariant(variantId);
+    try {
+      return await this.productVariantsService.deleteVariant(variantId);
+    } catch (error) {
+      throw new NotFoundException(error);
+    }
   }
 }

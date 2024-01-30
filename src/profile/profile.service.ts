@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { FirebaseService } from 'src/firebase.service';
 import { ProfileDTO } from './profile.dto';
@@ -40,26 +40,38 @@ export class ProfileService {
 
     // jika ada profile lama maka lakukan update
     if (oldProfile) {
+      if (oldProfile.userId !== userId) {
+        throw new ForbiddenException();
+      }
       const updatedProfile = await this.prisma.profile.update({
         where: {
           userId,
         },
         data: {
           ...profile,
+          user: {
+            connect: {
+              id: userId,
+            },
+          },
           image: newImage || oldImage,
         },
       });
       return updatedProfile;
     } else {
       //jika tidak maka buat profile baru
-      const updatedProfile = await this.prisma.profile.create({
+      const newProfile = await this.prisma.profile.create({
         data: {
           ...profile,
-          userId,
+          user: {
+            connect: {
+              id: userId,
+            },
+          },
           image: newImage || oldImage,
         },
       });
-      return updatedProfile;
+      return newProfile;
     }
   }
 }

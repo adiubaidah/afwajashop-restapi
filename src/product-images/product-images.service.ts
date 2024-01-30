@@ -50,8 +50,12 @@ export class ProductImagesService {
 
     const result = await this.prismaService.productImages.create({
       data: {
-        ...data,
         image: uploadedImage,
+        product: {
+          connect: {
+            id: data.productId,
+          },
+        },
       },
     });
 

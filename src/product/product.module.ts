@@ -3,10 +3,16 @@ import { ProductService } from './product.service';
 import { ProductController } from './product.controller';
 import { PrismaService } from 'src/prisma.service';
 import { JwtService } from '@nestjs/jwt';
-import { RegionService } from 'src/region/region.service';
-
+import { ProductImagesService } from 'src/product-images/product-images.service';
+import { FirebaseService } from 'src/firebase.service';
 @Module({
   controllers: [ProductController],
-  providers: [ProductService, PrismaService, JwtService, RegionService],
+  providers: [
+    ProductService,
+    ProductImagesService,
+    PrismaService,
+    JwtService,
+    FirebaseService,
+  ],
 })
 export class ProductModule {}

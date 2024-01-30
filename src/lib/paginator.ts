@@ -32,7 +32,6 @@ export const paginator = (
       model.findMany({
         ...args,
         take: perPage,
-        // orderBy: orderBy,
         skip,
       }),
     ]);

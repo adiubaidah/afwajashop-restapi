@@ -16,13 +16,30 @@ export class AddressService {
     // console.log(countAddress);
 
     if (countAddress < 2) {
+      const { provinceId, cityId, subDistrictId } = address;
       const newAddress = await this.prismaService.address.create({
         data: {
-          userId,
           address: address.address,
-          provinceId: address.provinceId,
-          cityId: address.cityId,
-          subDistrictId: address.subDistrictId,
+          user: {
+            connect: {
+              id: userId,
+            },
+          },
+          province: {
+            connect: {
+              id: provinceId,
+            },
+          },
+          city: {
+            connect: {
+              id: cityId,
+            },
+          },
+          subdistrict: {
+            connect: {
+              id: subDistrictId,
+            },
+          },
         },
       });
       return newAddress;
@@ -32,12 +49,28 @@ export class AddressService {
   }
 
   async update(address: AddressDTO) {
+    const { provinceId, cityId, subDistrictId } = address;
     return this.prismaService.address.update({
       where: {
         id: address.id,
       },
       data: {
-        ...address,
+        address: address.address,
+        province: {
+          connect: {
+            id: provinceId,
+          },
+        },
+        city: {
+          connect: {
+            id: cityId,
+          },
+        },
+        subdistrict: {
+          connect: {
+            id: subDistrictId,
+          },
+        },
       },
     });
   }

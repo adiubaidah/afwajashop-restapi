@@ -6,7 +6,7 @@ export class ProfileDTO {
   @IsString({ message: 'Nama harus diiisi' })
   name: string;
 
-  @IsPhoneNumber('ID')
+  @IsPhoneNumber('ID', { message: 'No Telepon tidak valid' })
   phone: string;
 
   @IsEnum(Gender, { message: 'Gender harus laki - laki atau perempuan' })
