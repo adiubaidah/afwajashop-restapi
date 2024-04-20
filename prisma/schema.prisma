@@ -118,7 +118,7 @@ model Category {
 model Product {
   id              String            @id @default(cuid())
   name            String            @db.VarChar(50)
-  slug            String            @unique @db.VarChar(15)
+  slug            String            @unique @db.VarChar(50)
   isActive        Boolean           @map("is_active")
   isFeatured      Boolean           @map("is_featured")
   isNew           Boolean           @map("is_new")
@@ -126,6 +126,7 @@ model Product {
   excerpt         String
   categoryId      Int               @map("category_id")
   category        Category          @relation(fields: [categoryId], references: [id])
+  address         String            @db.VarChar(255)
   provinceId      Int               @map("province_id")
   province        Province          @relation(fields: [provinceId], references: [id])
   cityId          Int               @map("city_id")
@@ -146,8 +147,9 @@ model ProductVariants {
   size      String? @db.VarChar(10)
   stock     Int
   price     Int
-  oldPrice  Int
-  productId String  @db.VarChar(30) @map("product_id")
+  oldPrice  Int     @map("old_price")
+  isActive  Boolean @map("is_active")
+  productId String  @map("product_id") @db.VarChar(30)
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   cart      Cart[]
 
@@ -157,7 +159,7 @@ model ProductVariants {
 model ProductImages {
   id        Int     @id @default(autoincrement())
   image     String  @db.VarChar(200)
-  productId String  @db.VarChar(30) @map("product_id")
+  productId String  @map("product_id") @db.VarChar(30)
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@map(name: "product_images")
@@ -180,7 +182,7 @@ model Favorite {
   id        String  @id @default(cuid())
   userId    String  @map("user_id") @db.Char(36)
   user      User    @relation(fields: [userId], references: [id])
-  productId String  @db.VarChar(30) @map("product_id")
+  productId String  @map("product_id") @db.VarChar(30)
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@map(name: "favorites")
@@ -201,6 +203,6 @@ model Order {
 enum OrderStatus {
   cancel //dibatalkan
   pending //
-  expire
-  success
+  expire //tidak dibayar
+  success //berhasil
 }

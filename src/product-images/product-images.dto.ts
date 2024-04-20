@@ -13,5 +13,5 @@ export class GetImageQuery {
 
   @IsOptional()
   @IsString()
-  productId: string;
+  product: string;
 }

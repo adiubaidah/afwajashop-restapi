@@ -34,12 +34,10 @@ export class ProductImagesController {
   constructor(private productImagesService: ProductImagesService) {}
 
   @Get()
-  async get(@Query() { id, productId }: GetImageQuery) {
-    if (id || productId) {
-      if (productId)
-        return await this.productImagesService.getAllImageByProducttId(
-          productId,
-        );
+  async get(@Query() { id, product }: GetImageQuery) {
+    if (id || product) {
+      if (product)
+        return await this.productImagesService.getAllImageByProducttId(product);
       return await this.productImagesService.findImage(id);
     } else {
       throw new NotFoundException();
@@ -73,12 +71,12 @@ export class ProductImagesController {
     // return await this.productImagesService.createImage(data, image);
   }
 
-  @Delete()
+  @Delete(':id')
   @Role(RoleEnum.ADMIN)
   @UseGuards(JwtGuard, RoleGuard)
-  async deleteImage(@Param() { imageId }: { imageId: number }) {
+  async deleteImage(@Param('id') id: number) {
     try {
-      return await this.productImagesService.deleteImage(imageId);
+      return await this.productImagesService.deleteImage(id);
     } catch (error) {
       throw new NotFoundException(error);
     }

@@ -11,11 +11,10 @@ import {
   Delete,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { ProductService } from './product.service';
 import { ProductDTO } from './product.dto';
 import { Role } from 'src/role/role.decorator';
-import { Role as RoleEnum } from 'src/constant';
+import { Role as RoleEnum, sortingQuery } from 'src/constant';
 import { RoleGuard } from 'src/role/role.guard';
 import { JwtGuard } from 'src/auth/jwt.guard';
 
@@ -24,44 +23,26 @@ export class ProductController {
   constructor(private productService: ProductService) {}
 
   @Get()
-  async products(
-    @Query()
-    {
-      page,
-      perPage,
-      orderBy,
-      search,
-    }: {
-      page?: number;
-      perPage?: number;
-      orderBy?: Prisma.ProductOrderByWithRelationInput;
-      search?: string;
-    },
+  async sqlFind(
+    @Query('page') pageQuery: number,
+    @Query('perPage') perPageQuery: number,
+    @Query('order') orderQuery: string,
+    @Query('search') search: string,
+    @Query('category') category: number,
+    @Query('relation') relationQuery: number, //-1 tidak //1 iya
   ) {
-    return await this.productService.getAll({
+    const order = orderQuery || 'name:asc';
+    const page = pageQuery || 1;
+    const perPage = perPageQuery || 6;
+    const relation = relationQuery || 1;
+    return await this.productService.get(
       page,
       perPage,
-      orderBy,
-      where: { name: { contains: search, mode: 'insensitive' } },
-      include: {
-        productImages: {
-          select: {
-            image: true,
-          },
-          take: 1,
-        },
-        productVariants: {
-          select: {
-            oldPrice: true,
-            price: true,
-          },
-          orderBy: {
-            price: 'asc',
-          },
-          take: 1,
-        },
-      },
-    });
+      sortingQuery[order],
+      search,
+      category,
+      relation === 1,
+    );
   }
 
   @Get('find')
@@ -91,7 +72,7 @@ export class ProductController {
     try {
       return await this.productService.updateProduct(productId, data);
     } catch (error) {
-      throw new BadRequestException();
+      throw new BadRequestException(error);
     }
   }
 

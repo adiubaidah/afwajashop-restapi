@@ -11,13 +11,22 @@ export class CategoryService {
   ) {}
 
   async allCategory() {
-    const result = await this.prismaServce.category.findMany();
+    const result = await this.prismaServce.category.findMany({
+      include: {
+        _count: {
+          select: {
+            product: true,
+          },
+        },
+      },
+    });
     const categories = await Promise.all(
       result.map(async (data) => {
         const imageUrl = await this.firebaseService.getDownloadUrl(data.image);
         return {
           ...data,
           image: imageUrl,
+          productCount: data._count.product,
         };
       }),
     );
@@ -53,18 +62,20 @@ export class CategoryService {
     data: CategoryDTO,
     image?: Express.Multer.File,
   ) {
-    const newImage = await this.firebaseService.uploadFile(
-      image,
-      `${process.env.FIREBASE_FOLDER_IMAGE_CATEGORY}/${generateString(8)}.jpg`,
-    );
-
+    let newImage: string;
+    if (image) {
+      newImage = await this.firebaseService.uploadFile(
+        image,
+        `${process.env.FIREBASE_FOLDER_IMAGE_CATEGORY}/${generateString(8)}.jpg`,
+      );
+    }
     const result = await this.prismaServce.category.update({
       where: {
         id,
       },
       data: {
         ...data,
-        image: newImage,
+        image: newImage || undefined,
       },
     });
 

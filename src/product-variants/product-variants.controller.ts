@@ -1,5 +1,6 @@
 import {
   Controller,
+  Get,
   Post,
   Put,
   Delete,
@@ -7,6 +8,7 @@ import {
   BadRequestException,
   Body,
   Param,
+  Query,
   ParseIntPipe,
   NotAcceptableException,
   NotFoundException,
@@ -23,6 +25,11 @@ import { ProductVariantsDTO } from './product-variants.dto';
 @Controller('product-variants')
 export class ProductVariantsController {
   constructor(private productVariantsService: ProductVariantsService) {}
+
+  @Get()
+  async all(@Query('product') product: string) {
+    return await this.productVariantsService.all(product);
+  }
 
   @Post()
   async addVariant(@Body() data: ProductVariantsDTO) {

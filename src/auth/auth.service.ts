@@ -1,7 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
-import { JWT_EXPIRE, JWT_SECRET_KEY } from 'src/constant';
 
 import { LoginDto } from './auth.dto';
 import { UserService } from 'src/user/user.service';
@@ -20,11 +19,7 @@ export class AuthService {
       email: user.email,
       role: user.role,
     };
-
-    return this.jwtService.signAsync(payload, {
-      expiresIn: JWT_EXPIRE,
-      secret: JWT_SECRET_KEY,
-    });
+    return payload;
   }
 
   async validateUser(dto: LoginDto) {

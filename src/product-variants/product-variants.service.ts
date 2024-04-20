@@ -21,6 +21,17 @@ export class ProductVariantsService {
     return result;
   }
 
+  async all(productId: string) {
+    return await this.prismaService.productVariants.findMany({
+      where: {
+        productId,
+      },
+      orderBy: {
+        price: 'asc',
+      },
+    });
+  }
+
   async editVariant(id: number, variant: ProductVariantsDTO) {
     const { productId, ...data } = variant;
     const result = await this.prismaService.productVariants.update({

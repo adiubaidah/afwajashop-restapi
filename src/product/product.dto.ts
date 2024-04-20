@@ -32,4 +32,7 @@ export class ProductDTO {
 
   @IsNumber({}, { message: 'Kecamatan harus ada' })
   subDistrictId: number;
+
+  @IsString({ message: 'Alamat harus ada' })
+  address: string;
 }

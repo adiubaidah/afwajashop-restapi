@@ -7,3 +7,10 @@ export const enum Role {
 
 export const MAX_PROFILE_PICTURE_SIZE_IN_BYTES = 2 * 1024 * 1024;
 export const VALID_UPLOADS_MIME_TYPES = ['image/jpeg', 'image/png'];
+
+export const sortingQuery = {
+  'name:asc': 'p.name ASC',
+  'name:desc': 'p.name DESC',
+  'price:asc': 'p.name ASC',
+  'price:desc': 'p.name DESC',
+};
